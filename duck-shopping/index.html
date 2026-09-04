@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小鴨代購｜日本代購商品</title>
+<meta name="description" content="小鴨代購提供日本商品代購服務，瀏覽商品並透過下單網址下單。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=IBM+Plex+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF7F0;
+    --ink:#2B2620;
+    --coral:#F0654A;
+    --coral-dark:#D6522E;
+    --teal:#3E7C7B;
+    --line:rgba(43,38,32,0.12);
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:'IBM Plex Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+    line-height:1.7;
+  }
+  h1,h2,.brand{font-family:'Zen Maru Gothic','IBM Plex Sans TC',sans-serif;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
+  img{max-width:100%; display:block;}
+
+  header{border-bottom:1px solid var(--line); background:var(--cream);}
+  nav.wrap{display:flex; align-items:center; justify-content:space-between; height:76px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.2rem; text-decoration:none; color:var(--ink);}
+  .brand-mark{width:36px; height:36px; border-radius:50%; background:var(--coral); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700;}
+  .nav-note{font-size:0.85rem; color:var(--teal);}
+
+  .hero{padding:64px 0 40px;}
+  .hero h1{font-size:clamp(1.9rem,4vw,2.6rem); margin:0 0 14px; font-weight:700;}
+  .hero p{color:#5c5348; max-width:52ch; margin:0;}
+
+  .cat-tabs{display:flex; gap:10px; margin:32px 0 8px; flex-wrap:wrap;}
+  .cat-tab{
+    padding:9px 18px; border-radius:999px; border:1.5px solid var(--line);
+    font-size:0.9rem; font-weight:600; cursor:pointer; background:#fff; color:var(--ink);
+  }
+  .cat-tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:24px; padding:36px 0 80px;
+  }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    overflow:hidden; display:flex; flex-direction:column; cursor:pointer;
+  }
+  .card-img{
+    aspect-ratio:1/1; background:#F1EBDF;
+    display:flex; align-items:center; justify-content:center;
+    color:#a89b86; font-size:0.85rem;
+  }
+  .card-img img{width:100%; height:100%; object-fit:cover;}
+  .card-body{padding:16px 18px 20px; display:flex; flex-direction:column; gap:8px; flex:1;}
+  .card-cat{font-size:0.78rem; color:var(--teal); font-weight:600;}
+  .card-name{font-weight:600; font-size:1.02rem; margin:0;}
+  .card-desc{font-size:0.86rem; color:#71675a; margin:0; flex:1;}
+  .card-price{font-weight:700; color:var(--coral-dark); font-size:1.05rem;}
+
+  .empty{padding:60px 0; text-align:center; color:#8a8073;}
+
+  .cta-strip{background:var(--ink); color:#fff; border-radius:12px; padding:40px 36px; margin-bottom:80px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;}
+  .cta-strip h3{margin:0 0 6px; font-size:1.25rem;}
+  .cta-strip p{margin:0; color:#d8d3c8; font-size:0.92rem;}
+  .btn{background:var(--coral); color:#fff; text-decoration:none; padding:12px 24px; border-radius:8px; font-weight:600; white-space:nowrap; display:inline-block; border:none; cursor:pointer; font-size:0.95rem;}
+
+  footer{border-top:1px solid var(--line); padding:28px 0; font-size:0.85rem; color:#8a8073;}
+
+  /* MODAL */
+  .modal{
+    position:fixed; inset:0; z-index:100;
+    background:rgba(43,38,32,0.6);
+    display:none; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .modal.active{display:flex;}
+  .modal-box{
+    background:#fff; border-radius:12px; max-width:480px; width:100%;
+    max-height:88vh; overflow-y:auto; position:relative;
+  }
+  .modal-close{
+    position:absolute; top:14px; right:14px; z-index:3;
+    width:34px; height:34px; border-radius:50%; border:none;
+    background:rgba(0,0,0,0.5); color:#fff; font-size:1.2rem; cursor:pointer;
+  }
+  .modal-img{position:relative; aspect-ratio:1/1; overflow:hidden; background:#F1EBDF;}
+  .modal-img .slide{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity .4s ease; color:#a89b86;
+  }
+  .modal-img .slide.active{opacity:1;}
+  .modal-img .slide img{width:100%; height:100%; object-fit:cover;}
+  .modal-img .m-nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:36px; height:36px; border-radius:50%; border:none;
+    background:rgba(0,0,0,0.4); color:#fff; font-size:1.2rem; cursor:pointer; z-index:2;
+  }
+  .modal-img .m-prev{left:10px;}
+  .modal-img .m-next{right:10px;}
+  .modal-img .m-dots{
+    position:absolute; bottom:10px; left:0; right:0; z-index:2;
+    display:flex; justify-content:center; gap:6px;
+  }
+  .modal-img .m-dots span{
+    width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.6);
+  }
+  .modal-img .m-dots span.active{background:#fff;}
+  .modal-body{padding:22px 24px 26px;}
+  .modal-body .card-cat{display:block; margin-bottom:6px;}
+  .modal-body h3{margin:0 0 10px; font-size:1.2rem;}
+  .modal-body p{color:#5c5348; font-size:0.94rem; margin:0 0 16px;}
+  .modal-price{font-weight:700; color:var(--coral-dark); font-size:1.2rem; display:block; margin-bottom:18px;}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <a href="#" class="brand"><span class="brand-mark">鴨</span>小鴨代購</a>
+    <span class="nav-note">日本代購・點商品查看詳情</span>
+  </nav>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>日本代購商品</h1>
+    <p>目前提供日本代購商品，點選商品可查看詳細資訊與下單方式。</p>
+  </section>
+
+  <div class="cat-tabs" id="catTabs"></div>
+
+  <div class="grid" id="productGrid"></div>
+
+  <div class="cta-strip">
+    <div>
+      <h3>想下單或詢問商品？</h3>
+      <p>點選商品卡片查看詳情，裡面會有下單網址，或直接與我們聯絡。</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 小鴨代購・日本代購商品</div>
+</footer>
+
+<div class="modal" id="productModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-img" id="modalImg"></div>
+    <div class="modal-body">
+      <span class="card-cat" id="modalCat"></span>
+      <h3 id="modalName"></h3>
+      <p id="modalDesc"></p>
+      <span class="modal-price" id="modalPrice"></span>
+      <a href="#" id="modalOrderBtn" class="btn" target="_blank" rel="noopener">前往下單</a>
+    </div>
+  </div>
+</div>
+
+<script>
+let allProducts = [];
+let activeCat = '全部';
+let modalImages = [];
+let modalIndex = 0;
+
+async function loadProducts(){
+  try{
+    const res = await fetch('products.json?_=' + Date.now());
+    const data = await res.json();
+    allProducts = data.products || [];
+    renderTabs();
+    renderGrid();
+  }catch(e){
+    document.getElementById('productGrid').innerHTML =
+      '<div class="empty">商品載入失敗，請稍後再試。</div>';
+  }
+}
+
+function renderTabs(){
+  const cats = ['全部', ...new Set(allProducts.map(p => p.category))];
+  const tabs = document.getElementById('catTabs');
+  tabs.innerHTML = cats.map(c =>
+    `<button class="cat-tab${c===activeCat?' active':''}" data-cat="${c}">${c}</button>`
+  ).join('');
+  tabs.querySelectorAll('.cat-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      activeCat = btn.dataset.cat;
+      renderTabs();
+      renderGrid();
+    });
+  });
+}
+
+function firstImage(p){
+  return (p.images && p.images[0]) ? p.images[0] : '';
+}
+
+function renderGrid(){
+  const grid = document.getElementById('productGrid');
+  const items = activeCat==='全部' ? allProducts : allProducts.filter(p=>p.category===activeCat);
+  if(items.length===0){
+    grid.innerHTML = '<div class="empty">目前這個分類還沒有商品。</div>';
+    return;
+  }
+  grid.innerHTML = items.map((p) => {
+    const img = firstImage(p);
+    return `
+    <div class="card" data-id="${p.id}">
+      <div class="card-img">
+        ${img ? `<img src="${img}" alt="${p.name}">` : '商品圖片'}
+      </div>
+      <div class="card-body">
+        <span class="card-cat">${p.category}</span>
+        <h3 class="card-name">${p.name}</h3>
+        <p class="card-desc">${p.desc || ''}</p>
+        <span class="card-price">NT$ ${p.price}</span>
+      </div>
+    </div>
+  `;
+  }).join('');
+
+  grid.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      const p = items.find(x => x.id === card.dataset.id);
+      openModal(p);
+    });
+  });
+}
+
+function openModal(p){
+  modalImages = (p.images && p.images.length) ? p.images : [];
+  modalIndex = 0;
+  renderModalImage();
+
+  document.getElementById('modalCat').textContent = p.category;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalDesc').textContent = p.desc || '';
+  document.getElementById('modalPrice').textContent = 'NT$ ' + p.price;
+
+  const orderBtn = document.getElementById('modalOrderBtn');
+  if(p.orderUrl){
+    orderBtn.href = p.orderUrl;
+    orderBtn.style.display = 'inline-block';
+  }else{
+    orderBtn.style.display = 'none';
+  }
+
+  document.getElementById('productModal').classList.add('active');
+}
+
+function renderModalImage(){
+  const box = document.getElementById('modalImg');
+  if(modalImages.length === 0){
+    box.innerHTML = '<div class="slide active">商品圖片</div>';
+    return;
+  }
+  const slides = modalImages.map((src,i) =>
+    `<div class="slide${i===modalIndex?' active':''}"><img src="${src}" alt="商品圖片 ${i+1}"></div>`
+  ).join('');
+  const nav = modalImages.length > 1 ? `
+    <button class="m-nav m-prev" onclick="changeModalImage(-1)">‹</button>
+    <button class="m-nav m-next" onclick="changeModalImage(1)">›</button>
+    <div class="m-dots">${modalImages.map((_,i)=>`<span class="${i===modalIndex?'active':''}"></span>`).join('')}</div>
+  ` : '';
+  box.innerHTML = slides + nav;
+}
+
+function changeModalImage(delta){
+  modalIndex = (modalIndex + delta + modalImages.length) % modalImages.length;
+  renderModalImage();
+}
+
+function closeModal(){
+  document.getElementById('productModal').classList.remove('active');
+}
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('productModal').addEventListener('click', (e) => {
+  if(e.target.id === 'productModal') closeModal();
+});
+document.addEventListener('keydown', (e) => {
+  if(!document.getElementById('productModal').classList.contains('active')) return;
+  if(e.key === 'Escape') closeModal();
+  if(e.key === 'ArrowLeft') changeModalImage(-1);
+  if(e.key === 'ArrowRight') changeModalImage(1);
+});
+
+loadProducts();
+</script>
+
+</body>
+</html>
