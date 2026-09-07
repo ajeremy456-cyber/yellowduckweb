@@ -37,8 +37,17 @@
   .status.info{display:block; background:#eef2f6; color:#3a5570;}
   .toggle-settings{font-size:0.85rem; color:var(--teal); cursor:pointer; text-decoration:underline; margin-bottom:20px; display:inline-block;}
   #settingsPanel{display:none;}
-  .list-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:0.9rem;}
+  .list-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:0.9rem; gap:12px;}
   .list-item:last-child{border-bottom:none;}
+  .list-info{flex:1; display:flex; justify-content:space-between; align-items:center; gap:12px; min-width:0;}
+  .list-info span:first-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .list-del-btn{
+    border:none; background:transparent; color:#a13333;
+    font-size:0.8rem; cursor:pointer; padding:4px 10px;
+    border:1px solid rgba(161,51,51,0.3); border-radius:5px; white-space:nowrap;
+  }
+  .list-del-btn:hover{background:#fbeaea;}
+  .list-del-btn:disabled{opacity:0.4; cursor:not-allowed;}
 </style>
 </head>
 <body>
@@ -93,6 +102,7 @@
   <div class="panel">
     <h2>目前商品清單</h2>
     <div id="currentList" class="hint">尚未載入，請先完成連線設定並新增一次商品，或點下方按鈕重新整理。</div>
+    <div class="status" id="listStatus"></div>
     <button class="secondary" id="refreshBtn" type="button">重新整理清單</button>
   </div>
 </div>
@@ -245,15 +255,40 @@ document.getElementById('refreshBtn').addEventListener('click', async ()=>{
   }
 });
 
+async function deleteProduct(id, name){
+  if(!confirm(`確定要刪除商品「${name}」嗎？\n此動作無法復原，GitHub Pages 需約 1 分鐘才會更新。`)) return;
+  showStatus('listStatus', 'info', `正在刪除「${name}」...`);
+  try{
+    const { json, sha } = await fetchProductsFile();
+    json.products = (json.products || []).filter(p => p.id !== id);
+    await saveProductsFile(json, sha, `刪除商品：${name}`);
+    showStatus('listStatus', 'ok', `「${name}」已刪除！約 1 分鐘後前台會更新。`);
+    renderCurrentList(json.products);
+  }catch(e){
+    showStatus('listStatus', 'err', e.message);
+  }
+}
+
 function renderCurrentList(products){
   const el = document.getElementById('currentList');
   if(!products || products.length===0){
     el.textContent = '目前沒有商品。';
     return;
   }
-  el.innerHTML = products.map(p =>
-    `<div class="list-item"><span>${p.name}（${p.category}）</span><span>NT$ ${p.price}</span></div>`
-  ).join('');
+  el.innerHTML = products.map(p => `
+    <div class="list-item">
+      <div class="list-info">
+        <span title="${p.name}">${p.name}（${p.category}）</span>
+        <span>NT$ ${p.price}</span>
+      </div>
+      <button class="list-del-btn" data-id="${p.id}" data-name="${p.name}">刪除</button>
+    </div>
+  `).join('');
+  el.querySelectorAll('.list-del-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      deleteProduct(btn.dataset.id, btn.dataset.name);
+    });
+  });
 }
 </script>
 

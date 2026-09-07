@@ -70,6 +70,13 @@
   .cta-strip{background:var(--ink); color:#fff; border-radius:12px; padding:40px 36px; margin-bottom:80px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;}
   .cta-strip h3{margin:0 0 6px; font-size:1.25rem;}
   .cta-strip p{margin:0; color:#d8d3c8; font-size:0.92rem;}
+  .cta-qr{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    background:#fff; color:var(--ink); border-radius:10px; padding:14px 14px 12px;
+    flex-shrink:0;
+  }
+  .cta-qr img{width:120px; height:120px; object-fit:contain; display:block;}
+  .cta-qr span{font-size:0.78rem; font-weight:600; color:var(--teal);}
   .btn{background:var(--coral); color:#fff; text-decoration:none; padding:12px 24px; border-radius:8px; font-weight:600; white-space:nowrap; display:inline-block; border:none; cursor:pointer; font-size:0.95rem;}
 
   footer{border-top:1px solid var(--line); padding:28px 0; font-size:0.85rem; color:#8a8073;}
@@ -144,6 +151,11 @@
     <div>
       <h3>想下單或詢問商品？</h3>
       <p>點選商品卡片查看詳情，裡面會有下單網址，或直接與我們聯絡。</p>
+      <a href="https://line.me/ti/g2/zzKdPkBi-pRWKyIJ6m_zTxZHb74BO9vjcv5GlQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" id="modalOrderBtn" class="btn" target="_blank" rel="noopener">加入LINE群組</a>
+    </div>
+    <div class="cta-qr">
+      <img src="76775.jpg" alt="LINE 群組 QRCODE">
+      <span>掃描加入群組</span>
     </div>
   </div>
 </main>
