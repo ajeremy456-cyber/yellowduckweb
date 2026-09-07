@@ -37,17 +37,15 @@
   .status.info{display:block; background:#eef2f6; color:#3a5570;}
   .toggle-settings{font-size:0.85rem; color:var(--teal); cursor:pointer; text-decoration:underline; margin-bottom:20px; display:inline-block;}
   #settingsPanel{display:none;}
-  .product-list{
-    display:grid; grid-template-columns:1fr auto; gap:10px 16px;
-    align-items:center; border-top:1px solid var(--line);
-  }
-  .product-list .pl-name{
-    padding:10px 0; border-bottom:1px solid var(--line); font-size:0.9rem;
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
-  .product-list .pl-act{
-    padding:10px 0; border-bottom:1px solid var(--line);
-  }
+.product-list{ border-top:1px solid var(--line); }
+.product-row{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:10px 0; border-bottom:1px solid var(--line);
+}
+.product-row .pl-name{
+  font-size:0.9rem; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; flex:1; min-width:0;
+}
   .list-del-btn{
     display:inline-block; background:#fff; color:#a13333;
     font-size:0.8rem; cursor:pointer; padding:4px 12px;
@@ -282,13 +280,13 @@ function renderCurrentList(products){
     el.textContent = '目前沒有商品。';
     return;
   }
-  const names = products.map(p =>
-    `<div class="pl-name" title="${p.name}">${p.name}</div>`
-  ).join('');
-  const acts = products.map(p =>
-    `<div class="pl-act"><button class="list-del-btn" data-id="${p.id}" data-name="${p.name}">刪除</button></div>`
-  ).join('');
-  el.innerHTML = `<div class="product-list">${names}${acts}</div>`;
+  const rows = products.map(p => `
+    <div class="product-row">
+      <span class="pl-name" title="${p.name}">${p.name}</span>
+      <button class="list-del-btn" data-id="${p.id}" data-name="${p.name}">刪除</button>
+    </div>
+  `).join('');
+  el.innerHTML = `<div class="product-list">${rows}</div>`;
   el.querySelectorAll('.list-del-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       deleteProduct(btn.dataset.id, btn.dataset.name);
