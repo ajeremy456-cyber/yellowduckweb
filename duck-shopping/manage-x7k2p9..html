@@ -39,8 +39,7 @@
   #settingsPanel{display:none;}
   .list-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:0.9rem; gap:12px;}
   .list-item:last-child{border-bottom:none;}
-  .list-info{flex:1; display:flex; justify-content:space-between; align-items:center; gap:12px; min-width:0;}
-  .list-info span:first-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .list-name{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .list-del-btn{
     border:none; background:transparent; color:#a13333;
     font-size:0.8rem; cursor:pointer; padding:4px 10px;
@@ -277,10 +276,7 @@ function renderCurrentList(products){
   }
   el.innerHTML = products.map(p => `
     <div class="list-item">
-      <div class="list-info">
-        <span title="${p.name}">${p.name}（${p.category}）</span>
-        <span>NT$ ${p.price}</span>
-      </div>
+      <span class="list-name" title="${p.name}">${p.name}</span>
       <button class="list-del-btn" data-id="${p.id}" data-name="${p.name}">刪除</button>
     </div>
   `).join('');
