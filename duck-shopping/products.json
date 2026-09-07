@@ -17,6 +17,17 @@
       "images": [],
       "orderUrl": "",
       "desc": "示意商品，人氣文具組合，之後請至後台更新為實際商品。"
+    },
+    {
+      "id": "1788759847077",
+      "name": "水箭龜",
+      "category": "日本",
+      "price": "280",
+      "images": [
+        "https://drive.google.com/file/d/1z9TslIeib2KWiMr9SLQ-nR8mFdLmB3TP/view"
+      ],
+      "orderUrl": "https://www.youtube.com/",
+      "desc": "水箭龜"
     }
   ]
 }
