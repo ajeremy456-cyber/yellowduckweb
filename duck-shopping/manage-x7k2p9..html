@@ -37,13 +37,21 @@
   .status.info{display:block; background:#eef2f6; color:#3a5570;}
   .toggle-settings{font-size:0.85rem; color:var(--teal); cursor:pointer; text-decoration:underline; margin-bottom:20px; display:inline-block;}
   #settingsPanel{display:none;}
-  .list-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:0.9rem; gap:12px;}
-  .list-item:last-child{border-bottom:none;}
-  .list-name{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .product-list{
+    display:grid; grid-template-columns:1fr auto; gap:10px 16px;
+    align-items:center; border-top:1px solid var(--line);
+  }
+  .product-list .pl-name{
+    padding:10px 0; border-bottom:1px solid var(--line); font-size:0.9rem;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .product-list .pl-act{
+    padding:10px 0; border-bottom:1px solid var(--line);
+  }
   .list-del-btn{
-    border:none; background:transparent; color:#a13333;
-    font-size:0.8rem; cursor:pointer; padding:4px 10px;
-    border:1px solid rgba(161,51,51,0.3); border-radius:5px; white-space:nowrap;
+    display:inline-block; background:#fff; color:#a13333;
+    font-size:0.8rem; cursor:pointer; padding:4px 12px;
+    border:1px solid rgba(161,51,51,0.3); border-radius:5px;
   }
   .list-del-btn:hover{background:#fbeaea;}
   .list-del-btn:disabled{opacity:0.4; cursor:not-allowed;}
@@ -274,12 +282,13 @@ function renderCurrentList(products){
     el.textContent = '目前沒有商品。';
     return;
   }
-  el.innerHTML = products.map(p => `
-    <div class="list-item">
-      <span class="list-name" title="${p.name}">${p.name}</span>
-      <button class="list-del-btn" data-id="${p.id}" data-name="${p.name}">刪除</button>
-    </div>
-  `).join('');
+  const names = products.map(p =>
+    `<div class="pl-name" title="${p.name}">${p.name}</div>`
+  ).join('');
+  const acts = products.map(p =>
+    `<div class="pl-act"><button class="list-del-btn" data-id="${p.id}" data-name="${p.name}">刪除</button></div>`
+  ).join('');
+  el.innerHTML = `<div class="product-list">${names}${acts}</div>`;
   el.querySelectorAll('.list-del-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       deleteProduct(btn.dataset.id, btn.dataset.name);
