@@ -54,6 +54,14 @@
 }
 .list-del-btn:hover{background:#fbeaea;}
 .list-del-btn:disabled{opacity:0.4; cursor:not-allowed;}
+.list-edit-btn{
+  display:inline-block; background:#fff; color:var(--teal);
+  font-size:0.8rem; cursor:pointer; padding:6px 14px;
+  border:1px solid rgba(62,124,123,0.3); border-radius:5px;
+  width:auto; margin-top:0; flex-shrink:0; margin-right:8px;
+}
+.list-edit-btn:hover{background:#eef6f5;}
+.row-actions{display:flex; align-items:center; flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -82,7 +90,7 @@
   </div>
 
   <div class="panel">
-    <h2>新增商品</h2>
+    <h2 id="formTitle">新增商品</h2>
     <label>商品名稱</label>
     <input id="p_name" placeholder="例如：日本藥妝面膜 3入">
     <div class="row2">
@@ -102,6 +110,7 @@
     <label>商品描述</label>
     <textarea id="p_desc" placeholder="簡短描述商品特色"></textarea>
     <button id="submitBtn" type="button">新增到網站</button>
+    <button id="cancelEditBtn" type="button" class="secondary" style="display:none;">取消修改</button>
     <div class="status" id="submitStatus"></div>
   </div>
 
@@ -207,6 +216,8 @@ async function saveProductsFile(json, sha, message){
   return res.json();
 }
 
+let editingId = null;
+
 document.getElementById('submitBtn').addEventListener('click', async ()=>{
   const btn = document.getElementById('submitBtn');
   const name = document.getElementById('p_name').value.trim();
@@ -222,28 +233,27 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   }
 
   btn.disabled = true;
-  showStatus('submitStatus', 'info', '正在新增商品，請稍候...');
+  showStatus('submitStatus', 'info', editingId ? '正在儲存修改，請稍候...' : '正在新增商品，請稍候...');
 
   try{
     const { json, sha } = await fetchProductsFile();
-    const newProduct = {
-      id: Date.now().toString(),
-      name, category, price,
-      images: image ? image.split(',').map(s => s.trim()).filter(Boolean) : [],
-      orderUrl,
-      desc
-    };
     json.products = json.products || [];
-    json.products.push(newProduct);
+    const images = image ? image.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-    await saveProductsFile(json, sha, `新增商品：${name}`);
+    if(editingId){
+      const idx = json.products.findIndex(p => p.id === editingId);
+      if(idx === -1) throw new Error('找不到這個商品，可能已被刪除，請重新整理清單。');
+      json.products[idx] = { ...json.products[idx], name, category, price, images, orderUrl, desc };
+      await saveProductsFile(json, sha, `修改商品：${name}`);
+      showStatus('submitStatus', 'ok', '修改已儲存！約 1 分鐘後前台會更新。');
+    }else{
+      const newProduct = { id: Date.now().toString(), name, category, price, images, orderUrl, desc };
+      json.products.push(newProduct);
+      await saveProductsFile(json, sha, `新增商品：${name}`);
+      showStatus('submitStatus', 'ok', '商品已新增！約 1 分鐘後前台會更新。');
+    }
 
-    showStatus('submitStatus', 'ok', '商品已新增！約 1 分鐘後前台會更新。');
-    document.getElementById('p_name').value = '';
-    document.getElementById('p_price').value = '';
-    document.getElementById('p_image').value = '';
-    document.getElementById('p_orderurl').value = '';
-    document.getElementById('p_desc').value = '';
+    cancelEdit();
     renderCurrentList(json.products);
   }catch(e){
     showStatus('submitStatus', 'err', e.message);
@@ -251,6 +261,41 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
     btn.disabled = false;
   }
 });
+
+function startEdit(id, products){
+  const p = products.find(x => x.id === id);
+  if(!p) return;
+
+  editingId = id;
+  document.getElementById('p_name').value = p.name || '';
+  document.getElementById('p_category').value = p.category || '';
+  document.getElementById('p_price').value = p.price || '';
+  document.getElementById('p_image').value = (p.images || []).join(', ');
+  document.getElementById('p_orderurl').value = p.orderUrl || '';
+  document.getElementById('p_desc').value = p.desc || '';
+
+  document.getElementById('formTitle').textContent = `修改商品：${p.name}`;
+  document.getElementById('submitBtn').textContent = '儲存修改';
+  document.getElementById('cancelEditBtn').style.display = 'block';
+
+  document.getElementById('p_name').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function cancelEdit(){
+  editingId = null;
+  document.getElementById('p_name').value = '';
+  document.getElementById('p_category').value = '日本';
+  document.getElementById('p_price').value = '';
+  document.getElementById('p_image').value = '';
+  document.getElementById('p_orderurl').value = '';
+  document.getElementById('p_desc').value = '';
+
+  document.getElementById('formTitle').textContent = '新增商品';
+  document.getElementById('submitBtn').textContent = '新增到網站';
+  document.getElementById('cancelEditBtn').style.display = 'none';
+}
+
+document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
 
 document.getElementById('refreshBtn').addEventListener('click', async ()=>{
   try{
@@ -284,13 +329,22 @@ function renderCurrentList(products){
   const rows = products.map(p => `
     <div class="product-row">
       <span class="pl-name" title="${p.name}">${p.name}</span>
-      <button class="list-del-btn" data-id="${p.id}" data-name="${p.name}">刪除</button>
+      <div class="row-actions">
+        <button class="list-edit-btn" data-id="${p.id}">修改</button>
+        <button class="list-del-btn" data-id="${p.id}" data-name="${p.name}">刪除</button>
+      </div>
     </div>
   `).join('');
   el.innerHTML = `<div class="product-list">${rows}</div>`;
+
   el.querySelectorAll('.list-del-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       deleteProduct(btn.dataset.id, btn.dataset.name);
+    });
+  });
+  el.querySelectorAll('.list-edit-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      startEdit(btn.dataset.id, products);
     });
   });
 }
